@@ -22,12 +22,20 @@ const (
 )
 
 type collectedInfo struct {
-	numOfFiles       int
-	numOfDirectories int
-	fileNames        []string
-	directories      []string
-	entryDetails     []*entryCollection
-	mu               sync.Mutex
+	numOfFiles            int
+	numOfDirectories      int
+	fileNames             []string
+	directories           []string
+	numOfFilesWithContent int
+	entryDetails          []*entryCollection
+	numOfIgnoredEntries   int
+	notRegistered         []*notAccessedPaths
+	mu                    sync.Mutex
+}
+
+type notAccessedPaths struct {
+	path string
+	err  string
 }
 
 type entryCollection struct {
@@ -91,9 +99,15 @@ func readDir(path string, theWorks *collectedInfo, isRoot bool) {
 func readFile(filename string, theWorks *collectedInfo) {
 	entry := entryCollection{}
 
+	contentsRead := false
+
 	contentFiles := []string{".txt", ".md", ".go", ".py"}
 	if slices.Contains(contentFiles, filepath.Ext(filename)) {
 		contents, err := os.ReadFile(filename)
+		if err != nil {
+			log.Fatal(err)
+		}
+		contentsRead = true
 		lineCountTotal := bytes.Count(contents, []byte("\n"))
 		blankLines := bytes.Count(contents, []byte("\n\n"))
 		lineCountWithContent := lineCountTotal - blankLines
@@ -139,12 +153,15 @@ func readFile(filename string, theWorks *collectedInfo) {
 
 	theWorks.mu.Lock()
 	theWorks.numOfFiles += 1
+	if contentsRead {
+		theWorks.numOfFilesWithContent += 1
+	}
 	theWorks.fileNames = append(theWorks.fileNames, filename)
 	theWorks.entryDetails = append(theWorks.entryDetails, &entry)
 	theWorks.mu.Unlock()
 }
 
-func traverseDirectory(root string, dirJobs chan<- readJob, fileJobs chan<- readJob, wg *sync.WaitGroup) {
+func traverseDirectory(root string, dirJobs chan<- readJob, fileJobs chan<- readJob, wg *sync.WaitGroup, theWorks *collectedInfo) {
 	defer wg.Done()
 
 	defer close(dirJobs)
@@ -156,7 +173,12 @@ func traverseDirectory(root string, dirJobs chan<- readJob, fileJobs chan<- read
 
 	err := filepath.WalkDir(root, func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
-			log.Printf("Error accessing path %s: %s", path, err)
+			failedPath := notAccessedPaths{path: path, err: err.Error()}
+			theWorks.mu.Lock()
+			theWorks.numOfIgnoredEntries += 1
+			theWorks.notRegistered = append(theWorks.notRegistered, &failedPath)
+			theWorks.mu.Unlock()
+			//log.Printf("Error accessing path %s: %s", path, err)
 			return nil
 		}
 
@@ -219,7 +241,7 @@ func Main() {
 	//log.Fatal("Failed to get current working directory: ", err)
 	//}
 
-	path := "/home/utled/"
+	path := "/"
 	stat, err := os.Stat(path)
 	if err != nil {
 		log.Fatal(err)
@@ -237,7 +259,7 @@ func Main() {
 		go fileWorker(fileReadJobs, &wg, &theWorks)
 	}
 
-	go traverseDirectory(path, dirReadJobs, fileReadJobs, &wg)
+	go traverseDirectory(path, dirReadJobs, fileReadJobs, &wg, &theWorks)
 
 	wg.Wait()
 
@@ -246,13 +268,21 @@ func Main() {
 
 	fmt.Println("Number of directories: ", theWorks.numOfDirectories)
 	fmt.Println("Number of files: ", theWorks.numOfFiles)
+	fmt.Println("Number read contents: ", theWorks.numOfFilesWithContent)
+	fmt.Println("Number ignored entries: ", theWorks.numOfIgnoredEntries)
 
-	for _, entry := range theWorks.entryDetails {
+	/*	fmt.Println("\nNot registered paths")
+		for _, fail := range theWorks.notRegistered {
+			fmt.Println("failed path: ", fail.path)
+			fmt.Print("with error: ", fail.err, "\n\n")
+		}*/
+
+	/*	for _, entry := range theWorks.entryDetails {
 		if entry.name == "Replanning.txt" {
 			fmt.Println("file: ", entry.fullPath)
 			fmt.Println(string(entry.contentSnippet))
 			fmt.Println("lineCountTotal: ", entry.lineCountTotal)
 			fmt.Println("lineCountWithContent: ", entry.lineCountWithContent)
 		}
-	}
+	}*/
 }
