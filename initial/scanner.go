@@ -1,4 +1,4 @@
-package indexing
+package initial
 
 import (
 	"bytes"
@@ -10,6 +10,7 @@ import (
 	"regexp"
 	"slices"
 	"snafu/data"
+	"snafu/utils"
 	"sync"
 	"syscall"
 	"time"
@@ -39,6 +40,7 @@ func readDir(path string, theWorks *data.CollectedInfo, isRoot bool) {
 	entry.Size = dirStat.Size()
 
 	statT := dirStat.Sys().(*syscall.Stat_t)
+	entry.Inode = statT.Ino
 	entry.ModificationTime = statT.Mtim.Sec + statT.Mtim.Nsec
 	entry.AccessTime = statT.Atim.Sec + statT.Atim.Nsec
 	entry.MetaDataChangeTime = statT.Ctim.Sec + statT.Ctim.Nsec
@@ -59,8 +61,7 @@ func readFile(filename string, theWorks *data.CollectedInfo) {
 
 	contentsRead := false
 
-	contentFiles := []string{".txt", ".md", ".go", ".py"}
-	if slices.Contains(contentFiles, filepath.Ext(filename)) {
+	if slices.Contains(utils.ContentFiles, filepath.Ext(filename)) {
 		contents, err := os.ReadFile(filename)
 		if err != nil {
 			log.Fatal(err)
@@ -91,7 +92,6 @@ func readFile(filename string, theWorks *data.CollectedInfo) {
 	if err != nil {
 		log.Fatal(err)
 	}
-
 	entry.FullPath = filename
 	entry.ParentDirID = filepath.Dir(filename)
 	entry.Name = filepath.Base(filename)
@@ -99,6 +99,7 @@ func readFile(filename string, theWorks *data.CollectedInfo) {
 	entry.Size = fileStat.Size()
 
 	statT := fileStat.Sys().(*syscall.Stat_t)
+	entry.Inode = statT.Ino
 	entry.ModificationTime = statT.Mtim.Sec + statT.Mtim.Nsec
 	entry.AccessTime = statT.Atim.Sec + statT.Atim.Nsec
 	entry.MetaDataChangeTime = statT.Ctim.Sec + statT.Ctim.Nsec
@@ -115,15 +116,17 @@ func readFile(filename string, theWorks *data.CollectedInfo) {
 	theWorks.Mu.Unlock()
 }
 
-func traverseDirectory(root string, dirJobs chan<- data.ReadJob, fileJobs chan<- data.ReadJob, wg *sync.WaitGroup, theWorks *data.CollectedInfo) {
+func traverseDirectory(
+	root string,
+	dirJobs chan<- string,
+	fileJobs chan<- string,
+	wg *sync.WaitGroup,
+	theWorks *data.CollectedInfo,
+) {
 	defer wg.Done()
 
 	defer close(dirJobs)
 	defer close(fileJobs)
-
-	excludedEntries := []string{
-		".cache",
-	}
 
 	err := filepath.WalkDir(root, func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
@@ -144,15 +147,14 @@ func traverseDirectory(root string, dirJobs chan<- data.ReadJob, fileJobs chan<-
 			return nil
 		}
 
-		if d.IsDir() && slices.Contains(excludedEntries, filepath.Base(path)) {
+		if d.IsDir() && slices.Contains(utils.ExcludedEntries, filepath.Base(path)) {
 			return filepath.SkipDir
 		}
 
-		job := data.ReadJob{Path: path}
 		if d.IsDir() {
-			dirJobs <- job
+			dirJobs <- path
 		} else {
-			fileJobs <- job
+			fileJobs <- path
 		}
 
 		return nil
@@ -163,33 +165,33 @@ func traverseDirectory(root string, dirJobs chan<- data.ReadJob, fileJobs chan<-
 	}
 }
 
-func dirWorker(readJobs <-chan data.ReadJob, wg *sync.WaitGroup, theWorks *data.CollectedInfo) {
+func dirWorker(readJobs <-chan string, wg *sync.WaitGroup, theWorks *data.CollectedInfo) {
 	defer wg.Done()
 
-	for t := range readJobs {
-		readDir(t.Path, theWorks, false)
+	for path := range readJobs {
+		readDir(path, theWorks, false)
 	}
 }
 
-func fileWorker(readJobs <-chan data.ReadJob, wg *sync.WaitGroup, theWorks *data.CollectedInfo) {
+func fileWorker(readJobs <-chan string, wg *sync.WaitGroup, theWorks *data.CollectedInfo) {
 	defer wg.Done()
-	for t := range readJobs {
-		readFile(t.Path, theWorks)
+	for path := range readJobs {
+		readFile(path, theWorks)
 	}
 }
 
-func Main() {
+func FullScan() {
 	start := time.Now()
 	theWorks := data.CollectedInfo{}
 
-	fileReadJobs := make(chan data.ReadJob, fileJobBufferSize)
-	dirReadJobs := make(chan data.ReadJob, directoryJobBufferSize)
+	fileReadJobs := make(chan string, fileJobBufferSize)
+	dirReadJobs := make(chan string, directoryJobBufferSize)
 
 	var wg sync.WaitGroup
 	totalWorkers := 1 + directoryWorkers + fileWorkers
 	wg.Add(totalWorkers)
 
-	path := "/home/utled"
+	path := "/home/utled/GolandProjects"
 	stat, err := os.Stat(path)
 	if err != nil {
 		log.Fatal(err)

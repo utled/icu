@@ -21,22 +21,13 @@ func InitializeDB(servicePath string) error {
 		return err
 	}
 
-	/*	err = writeDefaultConfig(db)
-		if err != nil {
-			return err
-		}*/
-
 	return nil
 }
 
 func createTables(db *sql.DB) error {
 	tableStatements := []string{
-		`create table if not exists config (
-    		type text unique not null primary key,
-    		priority integer not null default 0
-		);`,
 		`create table if not exists full_scans (
-    		scan_id int primary key,
+    		scan_id integer primary key,
          	scan_start text,
          	scan_end text,
          	scan_duration text,
@@ -47,7 +38,8 @@ func createTables(db *sql.DB) error {
          	indexing_completed bool
          );`,
 		`create table if not exists entries (
-    		path text not null,
+    		inode int not null primary key,
+    		path text unique,
     		parent_directory text,
     		name text,
     		is_dir boolean,
@@ -60,17 +52,13 @@ func createTables(db *sql.DB) error {
     		extension text,
     		filetype text,
     		content_snippet text,
-    		full_text text
-		);`,
+    		full_text text,
+    		line_count_total int,
+    		line_count_w_content int
+		) without rowid;`,
 		`create table if not exists ignored_entries (
     		path text,
     		error text
-		);`,
-		`create table if not exists changes (
-    		path text,
-    		field text,
-    		before text,
-        	after text
 		);`,
 	}
 
@@ -78,28 +66,6 @@ func createTables(db *sql.DB) error {
 		_, err := db.Exec(statement)
 		if err != nil {
 			return fmt.Errorf("could not create table %s: \n%w", statement, err)
-		}
-	}
-
-	return nil
-}
-
-func writeDefaultConfig(db *sql.DB) error {
-	query := ""
-	queryResponse := db.QueryRow(query)
-
-	config := &DefaultConfig{}
-	err := queryResponse.Scan(&config)
-	if err != nil {
-		if err == sql.ErrNoRows {
-			// set default values for config.values
-			_, err = db.Exec(query)
-			if err != nil {
-				return fmt.Errorf("failed to write default config: \n%w", err)
-			}
-			return nil
-		} else {
-			return fmt.Errorf("failed to read default config: \n%w", err)
 		}
 	}
 

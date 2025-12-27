@@ -20,20 +20,21 @@ type CollectedInfo struct {
 }
 
 type EntryCollection struct {
-	FullPath    string // primary key
-	ParentDirID string // foreign key
+	Inode       uint64
+	FullPath    string
+	ParentDirID string
 	Name        string
 	IsDir       bool
 	Size        int64
 	//creationTime       int64 // Btim (not included syscall.Stat_t)
-	ModificationTime     int64  // os.fileStat.modTime or os.fileStat.sys.Mtim.Sec + Mtim.Nsec
+	ModificationTime     int64  // os.fileStat.sys.Mtim.Sec + Mtim.Nsec
 	AccessTime           int64  // os.fileStat.sys.Atim.Sec + Atim.Nsec
 	MetaDataChangeTime   int64  // os.fileStat.sys.Ctim.Sec + Ctim.Nsec
 	OwnerID              uint32 // os.fileStat.sys.Uid
 	GroupID              uint32 // os.fileStat.sys.Gid
 	Extension            string
-	FileType             string // MIME type. Determined by file extension and/or internal magic bytes
-	ContentSnippet       []byte // short extract of the files content. [:500] to start with
+	FileType             string // MIME type
+	ContentSnippet       []byte // short extract of the files content. <= [:500]
 	FullTextIndex        []byte // the complete textual content of a document, stored in separate Full-Text Search index
 	LineCountTotal       int
 	LineCountWithContent int
@@ -45,6 +46,26 @@ type NotAccessedPaths struct {
 	Err  string
 }
 
-type ReadJob struct {
-	Path string
+type UpdatedDirs struct {
+	path string
+	mu   sync.Mutex
+}
+
+type SyncJob struct {
+	Path            string
+	IsIndexed       bool
+	IsContentChange bool
+}
+
+type IndexHeader struct {
+	Inode              uint64
+	Path               string
+	ModificationTime   int64
+	MetaDataChangeTime int64
+}
+
+type InodeHeader struct {
+	Path               string
+	ModificationTime   int64
+	MetaDataChangeTime int64
 }

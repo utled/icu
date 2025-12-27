@@ -4,9 +4,10 @@ import (
 	"bufio"
 	"fmt"
 	"os"
-	"snafu/indexing"
+	"snafu/initial"
+	"snafu/maintain"
 	"snafu/setup"
-	"snafu/test"
+	"snafu/xTest"
 	"strings"
 )
 
@@ -25,7 +26,9 @@ func Main() {
 				fmt.Println(err)
 			}
 		case "fullscan":
-			indexing.Main()
+			initial.FullScan()
+		case "sync":
+			maintain.Start()
 		default:
 			fmt.Println(arguments)
 		}
