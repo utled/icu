@@ -52,13 +52,6 @@ type SyncJob struct {
 	IsContentChange bool
 }
 
-type IndexHeader struct {
-	Inode              uint64
-	Path               string
-	ModificationTime   int64
-	MetaDataChangeTime int64
-}
-
 type InodeHeader struct {
 	Path               string
 	ModificationTime   int64
