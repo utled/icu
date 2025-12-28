@@ -26,7 +26,7 @@ func Main() {
 				fmt.Println(err)
 			}
 		case "fullscan":
-			initial.FullScan()
+			initial.StartInitialScan()
 		case "sync":
 			maintain.Start()
 		default:
