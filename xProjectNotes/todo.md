@@ -31,3 +31,4 @@
 - [] try to get scrollable columns
 - [] interactive rows
 - [] implement "per keystroke"-search instead of on enter
+- [] update db connection persistency
