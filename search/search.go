@@ -1,4 +1,4 @@
-package ui
+package search
 
 import (
 	"database/sql"
@@ -6,7 +6,7 @@ import (
 	"snafu/data"
 )
 
-func SearchIndex(con *sql.DB, searchString string) (searchResults []data.SearchResult, err error) {
+func Index(con *sql.DB, searchString string) (searchResults []data.SearchResult, err error) {
 	var query string
 	var response *sql.Rows
 
