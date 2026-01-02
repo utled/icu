@@ -60,6 +60,12 @@ func readFile(filename string, theWorks *data.CollectedInfo) {
 		blankLines := bytes.Count(contents, []byte("\n\n"))
 		lineCountWithContent := lineCountTotal - blankLines
 
+		if len(contents) < 500 {
+			entry.ContentSnippet = contents
+		} else {
+			entry.ContentSnippet = contents[:500]
+		}
+
 		contents = bytes.ReplaceAll(contents, []byte("\n"), []byte(" "))
 		contents = bytes.ReplaceAll(contents, []byte("\r"), []byte(" "))
 		contents = bytes.ReplaceAll(contents, []byte("\t"), []byte(" "))
@@ -67,11 +73,7 @@ func readFile(filename string, theWorks *data.CollectedInfo) {
 		regExCleanup := regexp.MustCompile(`[\p{C}\p{Zl}\p{Zp}]`)
 		contents = regExCleanup.ReplaceAll(contents, []byte(" "))
 		contents = regexp.MustCompile(`\s+`).ReplaceAll(contents, []byte(" "))
-		if len(contents) < 500 {
-			entry.ContentSnippet = contents
-		} else {
-			entry.ContentSnippet = contents[:500]
-		}
+
 		entry.FullTextIndex = contents
 		entry.LineCountTotal = lineCountTotal
 		entry.LineCountWithContent = lineCountWithContent
