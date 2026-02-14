@@ -1,7 +1,7 @@
 package initial
 
 import (
-	"snafu/data"
+	"icu/data"
 	"sync"
 )
 

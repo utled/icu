@@ -5,7 +5,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
-	"snafu/db"
+	"icu/db"
 
 	tea "github.com/charmbracelet/bubbletea"
 )
@@ -15,7 +15,7 @@ func UI() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	dbPath := filepath.Join(homePath, ".snafu", "snafu.db")
+	dbPath := filepath.Join(homePath, ".icu", "icu.db")
 
 	con, err := db.CreateConnection(dbPath)
 	if err != nil {

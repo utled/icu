@@ -7,7 +7,7 @@ import (
 
 const (
 	longScope  = "/home/utled/GolandProjects/"
-	shortScope = "/home/utled/GolandProjects/snafu"
+	shortScope = "/home/utled/GolandProjects/icu"
 )
 
 func Start() error {

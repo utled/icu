@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"snafu/data"
-	"snafu/db"
+	"icu/data"
+	"icu/db"
 	"sync"
 )
 
@@ -26,7 +26,7 @@ func orchestrateScan(startPath string) error {
 	if err != nil {
 		return err
 	}
-	dbPath := filepath.Join(homePath, ".snafu", "snafu.db")
+	dbPath := filepath.Join(homePath, ".icu", "icu.db")
 
 	con, err := db.CreateConnection(dbPath)
 	if err != nil {

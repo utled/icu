@@ -4,11 +4,11 @@ import (
 	"bufio"
 	"fmt"
 	"os"
-	"snafu/initial"
-	"snafu/maintain"
-	"snafu/setup"
-	"snafu/tui"
-	"snafu/xTest"
+	"icu/initial"
+	"icu/maintain"
+	"icu/setup"
+	"icu/tui"
+	"icu/xTest"
 	"strings"
 )
 

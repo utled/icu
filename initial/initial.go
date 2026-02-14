@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"snafu/data"
+	"icu/data"
 	"sync"
 	"time"
 )

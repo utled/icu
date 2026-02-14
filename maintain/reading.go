@@ -9,8 +9,8 @@ import (
 	"path/filepath"
 	"regexp"
 	"slices"
-	"snafu/data"
-	"snafu/utils"
+	"icu/data"
+	"icu/utils"
 	"syscall"
 	"time"
 )

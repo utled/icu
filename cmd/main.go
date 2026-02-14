@@ -1,7 +1,7 @@
 package main
 
 import (
-	"snafu/cli"
+	"icu/cli"
 )
 
 func main() {

@@ -1,4 +1,4 @@
-module snafu
+module icu
 
 go 1.25
 

@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"os"
-	"snafu/data"
+	"icu/data"
 	"sync"
 )
 

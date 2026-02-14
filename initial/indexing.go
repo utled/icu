@@ -6,8 +6,8 @@ import (
 	"log"
 	"os"
 	"path/filepath"
-	"snafu/data"
-	"snafu/db"
+	"icu/data"
+	"icu/db"
 )
 
 func updateFullIndex(theWorks *data.CollectedInfo) error {
@@ -15,7 +15,7 @@ func updateFullIndex(theWorks *data.CollectedInfo) error {
 	if err != nil {
 		log.Fatal(err)
 	}
-	dbPath := filepath.Join(homePath, ".snafu", "snafu.db")
+	dbPath := filepath.Join(homePath, ".icu", "icu.db")
 	con, err := db.CreateConnection(dbPath)
 	if err != nil {
 		log.Fatal(err)

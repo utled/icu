@@ -6,8 +6,8 @@ import (
 	"os"
 	"path/filepath"
 	"slices"
-	"snafu/data"
-	"snafu/utils"
+	"icu/data"
+	"icu/utils"
 	"sync"
 )
 
