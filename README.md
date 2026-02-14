@@ -1,4 +1,4 @@
-# snafu
-**Systems Navigation And File Utility**<br><br>
+# icu
+**Index Core Utility**<br><br>
 
 wip
