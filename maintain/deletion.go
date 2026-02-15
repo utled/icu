@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"os"
-	"icu/data"
+	"igloo/data"
 	"sync"
 )
 

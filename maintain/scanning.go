@@ -5,8 +5,8 @@ import (
 	"os"
 	"path/filepath"
 	"slices"
-	"icu/data"
-	"icu/utils"
+	"igloo/data"
+	"igloo/utils"
 	"syscall"
 	"time"
 )

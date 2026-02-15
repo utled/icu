@@ -1,7 +1,7 @@
 package main
 
 import (
-	"icu/cli"
+	"igloo/cli"
 )
 
 func main() {

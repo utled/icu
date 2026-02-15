@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"icu/data"
-	"icu/db"
+	"igloo/data"
+	"igloo/db"
 	"sync"
 )
 
@@ -26,7 +26,7 @@ func orchestrateScan(startPath string) error {
 	if err != nil {
 		return err
 	}
-	dbPath := filepath.Join(homePath, ".icu", "icu.db")
+	dbPath := filepath.Join(homePath, ".igloo", "igloo.db")
 
 	con, err := db.CreateConnection(dbPath)
 	if err != nil {

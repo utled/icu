@@ -1,7 +1,7 @@
 package utils
 
 var ExcludedEntries = []string{
-	".icu",
+	".igloo",
 	".cache",
 	".idea",
 	".git",

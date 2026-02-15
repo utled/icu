@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"icu/db"
+	"igloo/db"
 )
 
 func getHomeDir() (string, error) {
@@ -22,7 +22,7 @@ func Main() error {
 		return err
 	}
 
-	servicePath := filepath.Join(homePath, ".icu")
+	servicePath := filepath.Join(homePath, ".igloo")
 	fmt.Println("servicePath:", servicePath)
 
 	if info, err := os.Stat(servicePath); os.IsNotExist(err) {

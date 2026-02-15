@@ -1,4 +1,4 @@
-# icu
-**Index Core Utility**<br><br>
+# Igloo
+**File system indexing core utility**<br><br>
 
 wip

@@ -6,8 +6,8 @@ import (
 	"log"
 	"os"
 	"path/filepath"
-	"icu/data"
-	"icu/db"
+	"igloo/data"
+	"igloo/db"
 )
 
 func updateFullIndex(theWorks *data.CollectedInfo) error {
@@ -15,7 +15,7 @@ func updateFullIndex(theWorks *data.CollectedInfo) error {
 	if err != nil {
 		log.Fatal(err)
 	}
-	dbPath := filepath.Join(homePath, ".icu", "icu.db")
+	dbPath := filepath.Join(homePath, ".igloo", "igloo.db")
 	con, err := db.CreateConnection(dbPath)
 	if err != nil {
 		log.Fatal(err)

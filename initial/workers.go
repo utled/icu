@@ -1,7 +1,7 @@
 package initial
 
 import (
-	"icu/data"
+	"igloo/data"
 	"sync"
 )
 

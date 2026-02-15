@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"icu/data"
+	"igloo/data"
 	"sync"
 	"time"
 )

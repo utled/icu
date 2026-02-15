@@ -4,9 +4,9 @@ import (
 	"bufio"
 	"fmt"
 	"os"
-	"icu/initial"
-	"icu/maintain"
-	"icu/setup"
+	"igloo/initial"
+	"igloo/maintain"
+	"igloo/setup"
 	"strings"
 )
 
