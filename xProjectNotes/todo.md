@@ -20,12 +20,22 @@
 - [] figure out what else it's supposed to do
 - [] figure out what to do in life
 
+## General
+- [] add setup of .conf instead of hardcoded paths (and decide lang for .conf)
+- [] (if other than .json) write parser for .conf
+- [] configure DB for WAL
+- [] set up separate DB for contents fit FTS5 for text search
+- [] how to solve sudo permissions (if needed)
+- [] set up autostart
+- [] how to manage index status (log file(?) with 'last fresh index', 'last index sync' et.c.)
+- [] set up robust error handling/logging
+- [] explore options for defining file types for content reading
+- [] explore options for defining excluded objects
+
+
 # BUG FIXES & CHANGES
 ## General
 - [x] change time representations from combined Sec+Nsec to time.Time objects
 - [] fix the multiplied creation of new directories
 - [x] store content snippets without regex. only regex full content
-- [] set up better error handling and logging
-- [] explore options for defining file types for content reading
-- [] explore options for defining excluded objects
-
+- [] update db writes to separate metadata and contents
