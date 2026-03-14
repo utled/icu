@@ -10,7 +10,7 @@ import (
 	"strings"
 )
 
-func Main() {
+func main() {
 	for {
 		reader := bufio.NewReader(os.Stdin)
 		fmt.Print("> ")
