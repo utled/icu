@@ -5,6 +5,12 @@ import (
 	"time"
 )
 
+type Config struct {
+	LargeSyncPath      string `json:"LargeSyncPath"`    // defaults to system root directory
+	QuickSyncPath      string `json:"QuickSyncPath"`    // defaults to /home/user/
+	LargeSyncFrequenzy int    `json:"LargeSyncFrequenzy"` // what nth sync loop runs the full sync scan
+}
+
 type CollectedInfo struct {
 	ScanStart             time.Time
 	ScanEnd               time.Time
@@ -26,7 +32,7 @@ type EntryCollection struct {
 	Name        string
 	IsDir       bool
 	Size        int64
-	//creationTime       int64 // Btim (not included syscall.Stat_t)
+	// creationTime       int64 // Btim (not included syscall.Stat_t)
 	ModificationTime     time.Time // os.fileStat.sys.Mtim.Sec + Mtim.Nsec
 	AccessTime           time.Time // os.fileStat.sys.Atim.Sec + Atim.Nsec
 	MetaDataChangeTime   time.Time // os.fileStat.sys.Ctim.Sec + Ctim.Nsec
@@ -38,7 +44,7 @@ type EntryCollection struct {
 	FullTextIndex        []byte // the complete textual content of a document, stored in separate Full-Text Search index
 	LineCountTotal       int
 	LineCountWithContent int
-	//tags               []string // user defined tags or keywords from internal metadata
+	// tags               []string // user defined tags or keywords from internal metadata
 }
 
 type NotAccessedPaths struct {
