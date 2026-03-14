@@ -50,7 +50,13 @@ func ClearExistingData(con *sql.DB) error {
 }
 
 func WriteFullEntries(con *sql.DB, entryCollection []*EntryCollection) error {
-	query := `insert into entries(
+	transaction, err := con.Begin()
+	if err != nil {
+		return fmt.Errorf("failed to begin transaction for db write:%v", err)
+	}
+	defer transaction.Rollback()
+
+	statement, err := transaction.Prepare(`insert into entries(
                     inode,
                     path,
 					parent_directory,
@@ -68,11 +74,14 @@ func WriteFullEntries(con *sql.DB, entryCollection []*EntryCollection) error {
 					full_text,
                     line_count_total,
                     line_count_w_content)
-					values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+					values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`)
+	if err != nil {
+		return fmt.Errorf("failed to prepare execution statement for db write:%v", err)
+	}
+	defer statement.Close()
 
 	for _, entry := range entryCollection {
-		_, err := con.Exec(
-			query,
+		_, err := statement.Exec(
 			entry.Inode,
 			entry.FullPath,
 			entry.ParentDirID,
@@ -89,18 +98,25 @@ func WriteFullEntries(con *sql.DB, entryCollection []*EntryCollection) error {
 			entry.ContentSnippet,
 			entry.FullTextIndex,
 			entry.LineCountTotal,
-			entry.LineCountWithContent)
+			entry.LineCountWithContent,
+		)
 		if err != nil {
-			return fmt.Errorf("could not write entry %s to database: \n%w", entry.FullPath, err)
+			return fmt.Errorf("could not add entry %s to db write statement: \n%w", entry.FullPath, err)
 		}
-		fmt.Println("Wrote entry successfully:", entry.FullPath)
+		fmt.Println("added entry successfully:", entry.FullPath)
 	}
 
-	return nil
+	return transaction.Commit()
 }
 
 func UpdateEntriesWithContent(con *sql.DB, entryCollection []*EntryCollection) error {
-	query := `update entries
+	transaction, err := con.Begin()
+	if err != nil {
+		return fmt.Errorf("failed to begin transaction for db write:%v", err)
+	}
+	defer transaction.Rollback()
+
+	statement, err := transaction.Prepare(`update entries
     		  set 
                   path = ?,
 				  parent_directory = ?,
@@ -118,10 +134,14 @@ func UpdateEntriesWithContent(con *sql.DB, entryCollection []*EntryCollection) e
 				  full_text = ?,
                   line_count_total = ?,
                   line_count_w_content = ?
-			  where inode = ?`
+			  where inode = ?`)
+	if err != nil {
+		return fmt.Errorf("failed to prepare execution statement for db write:%v", err)
+	}
+	defer statement.Close()
+
 	for _, entry := range entryCollection {
 		_, err := con.Exec(
-			query,
 			entry.FullPath,
 			entry.ParentDirID,
 			entry.Name,
@@ -138,18 +158,25 @@ func UpdateEntriesWithContent(con *sql.DB, entryCollection []*EntryCollection) e
 			entry.FullTextIndex,
 			entry.LineCountTotal,
 			entry.LineCountWithContent,
-			entry.Inode)
+			entry.Inode,
+		)
 		if err != nil {
-			return fmt.Errorf("could not update entry %s in database: \n%w", entry.FullPath, err)
+			return fmt.Errorf("could not add entry %s to db update statement: \n%w", entry.FullPath, err)
 		}
-		fmt.Println("Updated entry with content successfully:", entry.FullPath)
+		fmt.Println("added entry with content successfully:", entry.FullPath)
 	}
 
 	return nil
 }
 
 func UpdateEntriesWithoutContent(con *sql.DB, entryCollection []*EntryCollection) error {
-	query := `update entries
+	transaction, err := con.Begin()
+	if err != nil {
+		return fmt.Errorf("failed to begin transaction for db write:%v", err)
+	}
+	defer transaction.Rollback()
+
+	statement, err := transaction.Prepare(`update entries
     		  set 
                   path = ?,
 				  parent_directory = ?,
@@ -163,11 +190,14 @@ func UpdateEntriesWithoutContent(con *sql.DB, entryCollection []*EntryCollection
 				  group_id = ?,
 				  extension = ?,
 				  filetype = ?
-			  where inode = ?`
+			  where inode = ?`)
+	if err != nil {
+		return fmt.Errorf("failed to prepare execution statement for db write:%v", err)
+	}
+	defer statement.Close()
 
 	for _, entry := range entryCollection {
 		_, err := con.Exec(
-			query,
 			entry.FullPath,
 			entry.ParentDirID,
 			entry.Name,
@@ -180,11 +210,12 @@ func UpdateEntriesWithoutContent(con *sql.DB, entryCollection []*EntryCollection
 			entry.GroupID,
 			entry.Extension,
 			entry.FileType,
-			entry.Inode)
+			entry.Inode,
+		)
 		if err != nil {
-			return fmt.Errorf("could not update entry %s in database: \n%w", entry.FullPath, err)
+			return fmt.Errorf("could not add entry %s to db update statement: \n%w", entry.FullPath, err)
 		}
-		fmt.Println("Updated entry without content successfully:", entry.FullPath)
+		fmt.Println("added entry without content successfully:", entry.FullPath)
 	}
 
 	return nil

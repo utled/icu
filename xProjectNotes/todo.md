@@ -39,3 +39,6 @@
 - [] fix the multiplied creation of new directories
 - [x] store content snippets without regex. only regex full content
 - [] update db writes to separate metadata and contents
+- [] merge the worker management into its own package
+- [] move exclusion- and content selections into config
+- [x] optimize bulk db write with statement preparation and commit instead of loop of single row writes
