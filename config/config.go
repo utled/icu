@@ -32,3 +32,22 @@ func InitializeConfig(homePath string, servicePath string) error {
 
 	return nil
 }
+
+func GetConfig() (config data.Config, err error) {
+	config = data.Config{}
+	homePath, err := os.UserHomeDir()
+	if err != nil {
+		return config, fmt.Errorf("failed to identify user home directory:%v", err)
+	}
+	configPath := filepath.Join(homePath, ".igloo/igloo.conf")
+	configFile, err := os.ReadFile(configPath)
+	if err != nil {
+		return config, fmt.Errorf("failed to read config file:%v", err)
+	}
+
+	if err = json.Unmarshal(configFile, &config); err != nil {
+		return config, fmt.Errorf("failed to unmarshal config file:%v", err)
+	}
+
+	return config, nil
+}

@@ -2,9 +2,10 @@ package initial
 
 import (
 	"fmt"
+	"igloo/config"
+	"igloo/data"
 	"log"
 	"os"
-	"igloo/data"
 	"sync"
 	"time"
 )
@@ -27,15 +28,18 @@ func StartInitialScan() {
 	totalWorkers := 1 + directoryWorkers + fileWorkers
 	wg.Add(totalWorkers)
 
-	path := "/home/utled/GolandProjects"
-	stat, err := os.Stat(path)
+	config, err := config.GetConfig()
+	if err != nil {
+		fmt.Println(err)
+	}
+	stat, err := os.Stat(config.LargeSyncPath)
 	if err != nil {
 		log.Fatal(err)
 	}
 	if !stat.IsDir() {
 		log.Fatal("Starting path must be a directory")
 	}
-	readDir(path, &theWorks, true)
+	readDir(config.LargeSyncPath, &theWorks, true)
 
 	for i := 0; i < directoryWorkers; i += 1 {
 		go dirWorker(dirReadJobs, &wg, &theWorks)
@@ -45,7 +49,7 @@ func StartInitialScan() {
 		go fileWorker(fileReadJobs, &wg, &theWorks)
 	}
 
-	go traverseDirectory(path, dirReadJobs, fileReadJobs, &wg, &theWorks)
+	go traverseDirectory(config.LargeSyncPath, dirReadJobs, fileReadJobs, &wg, &theWorks)
 
 	wg.Wait()
 	end := time.Now()

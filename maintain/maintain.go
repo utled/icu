@@ -2,24 +2,24 @@ package maintain
 
 import (
 	"fmt"
+	"igloo/config"
 	"time"
 )
 
-const (
-	longScope  = "/home/utled/Projects/Go/"
-	shortScope = "/home/utled/Projcets/Go/igloo"
-)
-
 func Start() error {
+	config, err := config.GetConfig()
+	if err != nil {
+		fmt.Println(err)
+	}
 	scanCount := 10
 	for scanCount > 0 {
 		var startPath string
 		var err error
 
-		if scanCount%5 == 0 {
-			startPath = longScope
+		if scanCount%config.LargeSyncFrequenzy == 0 {
+			startPath = config.LargeSyncPath
 		} else {
-			startPath = shortScope
+			startPath = config.QuickSyncPath
 		}
 
 		fmt.Printf("Starting scan of: %s\n", startPath)
